@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Arrow Function Example</title>
+</head>
+<body>
+
+    <h1>Numbers Greater Than 50</h1>
+
+    <p id="result"></p>
+
+    <script>
+
+        let numbers = [10, 25, 55, 70, 42, 80, 35, 95, 60];
+
+        // Arrow function
+        let greaterThan50 = numbers.filter(number => number > 50);
+
+        document.getElementById("result").innerHTML =
+            "Original Numbers: " + numbers.join(", ") +
+            "<br><br>" +
+            "Numbers Greater Than 50: " + greaterThan50.join(", ");
+
+    </script>
+
+</body>
+</html>
