@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>My To-Do App</title>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+
+        body {
+            background: #eef1f5;
+            padding: 20px;
+        }
+
+
+        .container {
+            max-width: 650px;
+            margin: 40px auto;
+        }
+
+
+        .header {
+            background: #1f4e79;
+            color: white;
+            padding: 25px;
+            border-radius: 12px 12px 0 0;
+            text-align: center;
+        }
+
+
+        .header h1 {
+            margin-bottom: 8px;
+        }
+
+
+        .app {
+            background: white;
+            padding: 25px;
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+
+        .input-area input {
+            flex: 1;
+            padding: 13px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+
+        .add-button {
+            background: #198754;
+            color: white;
+            border: none;
+            padding: 13px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+
+        .add-button:hover {
+            opacity: 0.85;
+        }
+
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            background: #f1f5f9;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+
+        .task {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            gap: 10px;
+        }
+
+
+        .task-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+
+        .task-text {
+            font-size: 16px;
+        }
+
+
+        .completed {
+            text-decoration: line-through;
+            color: #888;
+        }
+
+
+        .delete {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+
+        .empty {
+            text-align: center;
+            padding: 30px;
+            color: #777;
+        }
+
+
+        @media(max-width:500px) {
+
+            .input-area {
+                flex-direction: column;
+            }
+
+            .add-button {
+                width: 100%;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+    <div class="header">
+
+        <h1>My To-Do App</h1>
+
+        <p>Manage your daily tasks</p>
+
+    </div>
+
+
+    <div class="app">
+
+
+        <!-- INPUT -->
+
+        <div class="input-area">
+
+            <input
+                type="text"
+                id="taskInput"
+                placeholder="Enter a new task..."
+                onkeypress="handleEnter(event)"
+            >
+
+            <button
+                class="add-button"
+                onclick="addTask()">
+                Add Task
+            </button>
+
+        </div>
+
+
+        <!-- STATISTICS -->
+
+        <div class="stats">
+
+            <span>
+                Total:
+                <strong id="totalTasks">0</strong>
+            </span>
+
+            <span>
+                Completed:
+                <strong id="completedTasks">0</strong>
+            </span>
+
+            <span>
+                Pending:
+                <strong id="pendingTasks">0</strong>
+            </span>
+
+        </div>
+
+
+        <!-- TASK LIST -->
+
+        <div id="taskList"></div>
+
+
+    </div>
+
+</div>
+
+
+<script>
+
+
+    /* GET TASKS FROM LOCAL STORAGE */
+
+    let tasks =
+        JSON.parse(localStorage.getItem("tasks")) || [];
+
+
+    /* SAVE TASKS */
+
+    function saveTasks() {
+
+        localStorage.setItem(
+            "tasks",
+            JSON.stringify(tasks)
+        );
+
+    }
+
+
+    /* ADD TASK */
+
+    function addTask() {
+
+        let input =
+            document.getElementById("taskInput");
+
+        let text =
+            input.value.trim();
+
+
+        if (text === "") {
+
+            alert("Please enter a task.");
+
+            return;
+
+        }
+
+
+        let task = {
+
+            text: text,
+
+            completed: false
+
+        };
+
+
+        tasks.push(task);
+
+        saveTasks();
+
+        input.value = "";
+
+        displayTasks();
+
+    }
+
+
+    /* ADD TASK USING ENTER KEY */
+
+    function handleEnter(event) {
+
+        if (event.key === "Enter") {
+
+            addTask();
+
+        }
+
+    }
+
+
+    /* DISPLAY TASKS */
+
+    function displayTasks() {
+
+        let list =
+            document.getElementById("taskList");
+
+        list.innerHTML = "";
+
+
+        if (tasks.length === 0) {
+
+            list.innerHTML = `
+                <div class="empty">
+                    No tasks yet. Add your first task!
+                </div>
+            `;
+
+        }
+
+
+        tasks.forEach((task, index) => {
+
+            list.innerHTML += `
+
+                <div class="task">
+
+                    <div class="task-left">
+
+                        <input
+                            type="checkbox"
+                            ${task.completed ? "checked" : ""}
+                            onchange="toggleTask(${index})"
+                        >
+
+                        <span
+                            class="task-text
+                            ${task.completed ? "completed" : ""}">
+                            ${task.text}
+                        </span>
+
+                    </div>
+
+
+                    <button
+                        class="delete"
+                        onclick="deleteTask(${index})">
+                        Delete
+                    </button>
+
+                </div>
+
+            `;
+
+        });
+
+
+        updateStats();
+
+    }
+
+
+    /* MARK COMPLETE */
+
+    function toggleTask(index) {
+
+        tasks[index].completed =
+            !tasks[index].completed;
+
+        saveTasks();
+
+        displayTasks();
+
+    }
+
+
+    /* DELETE TASK */
+
+    function deleteTask(index) {
+
+        if (confirm("Delete this task?")) {
+
+            tasks.splice(index, 1);
+
+            saveTasks();
+
+            displayTasks();
+
+        }
+
+    }
+
+
+    /* UPDATE STATISTICS */
+
+    function updateStats() {
+
+        let total = tasks.length;
+
+        let completed =
+            tasks.filter(task => task.completed).length;
+
+        let pending =
+            total - completed;
+
+
+        document.getElementById("totalTasks")
+            .innerText = total;
+
+        document.getElementById("completedTasks")
+            .innerText = completed;
+
+        document.getElementById("pendingTasks")
+            .innerText = pending;
+
+    }
+
+
+    /* INITIAL DISPLAY */
+
+    displayTasks();
+
+
+</script>
+
+
+</body>
+</html>
